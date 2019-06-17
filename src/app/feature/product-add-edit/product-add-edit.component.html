@@ -1,0 +1,21 @@
+<form [formGroup]="productForm" (ngSubmit)="onSubmit()">
+  <p>
+    <label for="name">Name</label><br>
+    <input formControlName="name" type="text"><br>
+    {{name.touched}}
+    {{name.errors | json}}
+  </p>
+  <p>
+    <label for="price">Price</label><br>
+    <input formControlName="price" type="number" min="0"><br>
+    {{price.touched}}
+    {{price.errors | json}}
+  </p>
+  <p>
+    <label for="description">Description</label><br>
+    <input formControlName="description" type="text"><br>
+    {{description.touched}}
+    {{description.errors | json}}
+  </p>
+  <input type="submit" value="Submit">
+</form>

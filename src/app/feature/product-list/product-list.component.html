@@ -1,0 +1,5 @@
+<ul>
+  <li *ngFor="let product of products | async" [routerLink]="product.id">
+    {{product | json}}
+  </li>
+</ul>
