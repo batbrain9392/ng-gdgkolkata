@@ -1,5 +1,9 @@
+<button type="button" routerLink="add">Add</button>
 <ul>
-  <li *ngFor="let product of products | async" [routerLink]="product.id">
+  <li *ngFor="let product of products | async">
     {{product | json}}
+    <button type="button" [routerLink]="product.id">Details</button>
+    <button type="button" [routerLink]="['edit', product.id]">Edit</button>
+    <button type="button" (click)="onDelete(product.id)">Delete</button>
   </li>
 </ul>

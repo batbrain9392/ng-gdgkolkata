@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { ProductService } from 'src/app/shared/services/product.service';
 import { Product } from 'src/app/shared/interfaces/product';
 
@@ -10,8 +11,14 @@ import { Product } from 'src/app/shared/interfaces/product';
 })
 export class ProductAddEditComponent implements OnInit {
   productForm: FormGroup;
+  productId: string;
 
-  constructor(fb: FormBuilder, private productService: ProductService) {
+  constructor(
+    fb: FormBuilder,
+    activatedRoute: ActivatedRoute,
+    private productService: ProductService
+  ) {
+    this.productId = activatedRoute.snapshot.params.id;
     this.productForm = fb.group({
       name: [null, Validators.required],
       price: [null, Validators.required],
@@ -29,16 +36,28 @@ export class ProductAddEditComponent implements OnInit {
     return this.productForm.controls.description;
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.productService
+      .getProduct(this.productId)
+      .subscribe(product => this.productForm.setValue(product));
+  }
 
   onSubmit() {
     if (this.productForm.valid) {
-      this.productService
-        .addProduct(this.productForm.value as Product)
-        .then(doc => {
-          console.log(doc.id);
-          this.productForm.reset();
-        });
+      if (this.productId) {
+        this.productService.updateProduct({
+          id: this.productId,
+          ...this.productForm.value
+        } as Product)
+        .then(console.log);
+      } else {
+        this.productService
+          .addProduct(this.productForm.value as Product)
+          .then(doc => {
+            console.log(doc.id);
+            this.productForm.reset();
+          });
+      }
     }
   }
 }

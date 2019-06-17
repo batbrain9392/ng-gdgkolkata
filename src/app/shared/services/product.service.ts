@@ -1,5 +1,9 @@
 import { Injectable } from '@angular/core';
-import { AngularFirestore, AngularFirestoreCollection, DocumentReference } from '@angular/fire/firestore';
+import {
+  AngularFirestore,
+  AngularFirestoreCollection,
+  DocumentReference
+} from '@angular/fire/firestore';
 import { environment } from 'src/environments/environment';
 import { Product } from '../interfaces/product';
 import { Observable } from 'rxjs';
@@ -13,26 +17,36 @@ export class ProductService {
 
   constructor(afs: AngularFirestore) {
     this.productsCollection = afs
-      .collection(environment.firebaseEnv.app)
-      .doc(environment.firebaseEnv.env)
+      .doc(environment.env)
       .collection<Product>('products');
   }
 
   getProducts(): Observable<Product[]> {
     return this.productsCollection.snapshotChanges().pipe(
-      map(actions => actions.map(a => {
-        const data = a.payload.doc.data();
-        const id = a.payload.doc.id;
-        return { id, ...data } as Product;
-      }))
+      map(actions =>
+        actions.map(a => {
+          const data = a.payload.doc.data();
+          const id = a.payload.doc.id;
+          return { id, ...data } as Product;
+        })
+      )
     );
   }
 
   getProduct(id: string): Observable<Product> {
-    return this.productsCollection.doc(id).valueChanges() as Observable<Product>;
+    return this.productsCollection.doc(id)
+      .valueChanges() as Observable<Product>;
   }
 
-  addProduct(product: Product) {
+  addProduct(product: Product): Promise<DocumentReference> {
     return this.productsCollection.add(product);
+  }
+
+  updateProduct({id, ...productRest}: Product): Promise<void> {
+    return this.productsCollection.doc(id).update(productRest);
+  }
+
+  deleteProduct(id: string): Promise<void> {
+    return this.productsCollection.doc(id).delete();
   }
 }

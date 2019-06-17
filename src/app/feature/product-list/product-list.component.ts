@@ -17,4 +17,8 @@ export class ProductListComponent implements OnInit {
     this.products = this.productService.getProducts();
   }
 
+  onDelete(productId: string) {
+    this.productService.deleteProduct(productId)
+      .then(console.log);
+  }
 }
