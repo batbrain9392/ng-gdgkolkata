@@ -37,9 +37,11 @@ export class ProductAddEditComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.productService
+    if (this.productId) {
+      this.productService
       .getProduct(this.productId)
       .subscribe(product => this.productForm.setValue(product));
+    }
   }
 
   onSubmit() {

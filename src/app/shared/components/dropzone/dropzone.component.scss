@@ -1,0 +1,18 @@
+[appDropzone] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  $size: 200px;
+  min-width: $size;
+  min-height: $size;
+  width: inherit;
+  height: inherit;
+  border: 2px dashed black;
+  border-radius: 5px;
+
+  &.hovering {
+    border: 2px solid black;
+    color: #dadada;
+  }
+}
