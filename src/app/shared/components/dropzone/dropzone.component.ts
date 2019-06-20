@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Output, EventEmitter } from '@angular/core';
 
 @Component({
   selector: 'app-dropzone',
@@ -6,14 +6,14 @@ import { Component } from '@angular/core';
   styleUrls: ['./dropzone.component.scss']
 })
 export class DropzoneComponent {
+  @Output() dropped = new EventEmitter<File>();
   isHovering: boolean;
-  file: File;
 
   toggleHover(event: boolean) {
     this.isHovering = event;
   }
 
   onDrop(files: FileList) {
-    this.file = files.item(0);
+    this.dropped.emit(files.item(0));
   }
 }

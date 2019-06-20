@@ -1,18 +1,21 @@
-[appDropzone] {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  $size: 200px;
-  min-width: $size;
-  min-height: $size;
+.square {
+  position: relative;
+  min-width: 260px;
   width: inherit;
-  height: inherit;
   border: 2px dashed black;
-  border-radius: 5px;
 
-  &.hovering {
-    border: 2px solid black;
-    color: #dadada;
+  &:after {
+    content: "";
+    display: block;
+    padding-bottom: 100%;
+  }
+  & > div {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
   }
 }
