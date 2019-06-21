@@ -66,3 +66,40 @@ export const generateThumbs = functions.storage
     console.log('filepath not found, exiting function');
     return false;
   });
+
+export interface FileUrl {
+  original: string;
+  medium: string;
+  small: string;
+}
+export const deleteImageFolder = functions.firestore
+  .document('app/dev/products/{productId}')
+  .onDelete((snap, context) => {
+    // Get an object representing the document prior to deletion
+    const fileUrl: FileUrl = snap.get('fileUrl');
+    if (fileUrl) {
+      const delim = {
+        queryParam: '?',
+        folder: '%2F'
+      };
+      const uri = fileUrl.original.split(delim.queryParam).shift();
+      if (uri) {
+        const folder = uri.split(delim.folder).pop();
+        console.log(folder);
+        if (folder) {
+          const bucket = firebaseStorage.bucket();
+          return bucket.deleteFiles({
+            prefix: `${folder}/`
+          })
+          .then(() => console.log(`${folder} folder deleted`));
+        } else {
+          console.log('folder not found');
+        }
+      } else {
+        console.log('uri not found');
+      }
+    } else {
+      console.log('fileUrl not found');
+    }
+    return false;
+  });
