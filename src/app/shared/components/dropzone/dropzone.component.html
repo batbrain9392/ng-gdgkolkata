@@ -6,7 +6,10 @@
     (dropped)="onDrop($event)"
     [class.hovering]="isHovering">
       <div class="dropzone-content">
-        {{caption}}
+        <div class="caption">
+          <mat-icon>cloud_upload</mat-icon>
+          <span>{{caption}}</span>
+        </div>
         <input type="file" #fileInput accept="image/*"
           (change)="onDrop($event.target.files.item(0))">
       </div>

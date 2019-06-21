@@ -1,7 +1,17 @@
 <button mat-fab type="button" routerLink="add">
   <mat-icon>add</mat-icon>
 </button>
-<ul>
+<mat-nav-list>
+  <a mat-list-item *ngFor="let product of products | async"
+    [routerLink]="product.id">
+    <img matListAvatar [src]="product.fileUrl.small" alt="photo"
+      *ngIf="product.fileUrl">
+    <h3 matLine>{{product.name}}</h3>
+    <div matLine>₹{{product.price}}</div>
+    <mat-icon>arrow_forward_ios</mat-icon>
+</a>
+</mat-nav-list>
+<!-- <ul>
   <li *ngFor="let product of products | async">
     <img [src]="product.fileUrl.medium" alt="photo" *ngIf="product.fileUrl">
     <div>{{product | json}}</div>
@@ -9,4 +19,4 @@
     <button type="button" [routerLink]="['edit', product.id]">Edit</button>
     <button type="button" (click)="onDelete(product.id)">Delete</button>
   </li>
-</ul>
+</ul> -->
