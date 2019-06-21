@@ -5,12 +5,14 @@
         [opened]="(isHandset$ | async) === false">
       <mat-toolbar color="primary">Menu</mat-toolbar>
       <mat-nav-list (click)="drawer.toggle()">
-        <a mat-list-item routerLinkActive="router-link-active"
+        <!-- <a mat-list-item routerLinkActive="router-link-active"
           routerLink="/signin">Signin</a>
         <a mat-list-item routerLinkActive="router-link-active"
-          routerLink="/signup">Signup</a>
+          routerLink="/signup">Signup</a> -->
         <a mat-list-item routerLinkActive="router-link-active"
-          [routerLink]="['feature', 'products']">Products</a>
+          routerLink="/feature/products">Products</a>
+        <!-- <a mat-list-item routerLinkActive="router-link-active"
+          routerLink="/admin">Admin</a> -->
       </mat-nav-list>
     </mat-sidenav>
     <mat-sidenav-content>
