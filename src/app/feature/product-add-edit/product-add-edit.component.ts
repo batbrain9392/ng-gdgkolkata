@@ -8,6 +8,7 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProductService } from 'src/app/shared/services/product.service';
 import { Product } from 'src/app/shared/interfaces/product';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-product-add-edit',
@@ -24,7 +25,8 @@ export class ProductAddEditComponent implements OnInit {
     fb: FormBuilder,
     activatedRoute: ActivatedRoute,
     private router: Router,
-    private productService: ProductService
+    private productService: ProductService,
+    private matSnackBar: MatSnackBar
   ) {
     this.productId = activatedRoute.snapshot.params.id;
     this.productForm = fb.group({
@@ -70,13 +72,19 @@ export class ProductAddEditComponent implements OnInit {
             id: this.productId,
             ...this.productForm.value
           } as Product)
-          .then(console.log);
+          .then(() => {
+            this.router.navigate(['feature', 'products', this.productId]);
+            this.matSnackBar.open('Item updated');
+          });
       } else {
         this.productService
           .addProduct(this.file, this.productForm.value as Product)
-          .then(() => {
+          .then(doc => {
             this.productForm.reset();
             this.router.navigate(['feature', 'products']);
+            this.matSnackBar.open('Item created', 'VIEW')
+              .onAction()
+              .subscribe(() => this.router.navigate(['feature', 'products', doc.id]));
           });
       }
     }

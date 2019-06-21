@@ -8,6 +8,7 @@ import { AngularFireAuthModule } from '@angular/fire/auth';
 import { AngularFireFunctionsModule } from '@angular/fire/functions';
 import { AngularFireMessagingModule } from '@angular/fire/messaging';
 import { AppRoutingModule } from './app-routing.module';
+import { SharedModule } from './shared/shared.module';
 
 import { environment } from 'src/environments/environment';
 
@@ -34,8 +35,8 @@ import { SignupComponent } from './core/auth/signup/signup.component';
     AngularFireAuthModule,
     AngularFireStorageModule,
     AngularFireFunctionsModule,
-    AngularFireMessagingModule
-
+    AngularFireMessagingModule,
+    SharedModule
   ],
   providers: [],
   bootstrap: [AppComponent]

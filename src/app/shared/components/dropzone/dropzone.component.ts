@@ -13,7 +13,7 @@ export class DropzoneComponent implements OnInit, OnChanges {
   backgroundImageUrl: string;
 
   ngOnInit() {
-    this.caption = 'Drag and drop a photo';
+    this.caption = 'Upload photo';
     this.backgroundImageUrl = 'none';
   }
 
@@ -25,8 +25,7 @@ export class DropzoneComponent implements OnInit, OnChanges {
     this.isHovering = event;
   }
 
-  onDrop(files: FileList) {
-    const file = files.item(0);
+  onDrop(file: File) {
     this.dropped.emit(file);
     this.backgroundImageUrl = 'none';
     this.caption = `Selected ${file.name}`;

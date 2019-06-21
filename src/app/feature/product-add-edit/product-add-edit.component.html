@@ -5,19 +5,28 @@
       [fileUrl]="fileUrl"></app-dropzone>
   </p>
   <p>
-    <label for="name">Name</label><br>
-    <input formControlName="name" type="text"><br>
-    touched:{{name.touched}}, errors:{{name.errors | json}}
+    <mat-form-field appearance="standard">
+      <mat-label>Name</mat-label>
+      <input matInput required type="text" formControlName="name">
+      <mat-error *ngIf="name.touched && name.hasError('required')">
+        Name is required
+      </mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="standard">
+      <mat-label>Price</mat-label>
+      <input matInput required type="number" formControlName="price" min="0">
+      <span matPrefix>₹&nbsp;</span>
+      <mat-error *ngIf="price.touched && price.hasError('required')">
+        Price is required
+      </mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="standard">
+      <mat-label>Description</mat-label>
+      <input matInput required type="text" formControlName="description">
+      <mat-error *ngIf="description.touched && description.hasError('required')">
+        Description is required
+      </mat-error>
+    </mat-form-field>
   </p>
-  <p>
-    <label for="price">Price</label><br>
-    <input formControlName="price" type="number" min="0"><br>
-    touched:{{price.touched}}, errors:{{price.errors | json}}
-  </p>
-  <p>
-    <label for="description">Description</label><br>
-    <input formControlName="description" type="text"><br>
-    touched:{{description.touched}}, errors:{{description.errors | json}}
-  </p>
-  <input type="submit" value="Submit">
+  <button mat-raised-button color="primary" type="submit">SUBMIT</button>
 </form>

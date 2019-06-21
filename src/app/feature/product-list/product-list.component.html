@@ -1,7 +1,9 @@
-<button type="button" routerLink="add">Add</button>
+<button mat-fab type="button" routerLink="add">
+  <mat-icon>add</mat-icon>
+</button>
 <ul>
   <li *ngFor="let product of products | async">
-    <img [src]="product.fileUrl.medium" alt="medium">
+    <img [src]="product.fileUrl.medium" alt="photo" *ngIf="product.fileUrl">
     <div>{{product | json}}</div>
     <button type="button" [routerLink]="product.id">Details</button>
     <button type="button" [routerLink]="['edit', product.id]">Edit</button>

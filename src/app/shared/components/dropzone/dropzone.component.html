@@ -1,4 +1,4 @@
-<div class="container">
+<div matRipple class="container" (click)="fileInput.click()">
   <div class="square" [style.background-image]="backgroundImageUrl"></div>
   <div class="dropzone"
     appDropzone
@@ -6,8 +6,9 @@
     (dropped)="onDrop($event)"
     [class.hovering]="isHovering">
       <div class="dropzone-content">
-        <p>{{caption}}</p>
-        <input type="file" (change)="onDrop($event.target.files)" accept="image/*">
+        {{caption}}
+        <input type="file" #fileInput accept="image/*"
+          (change)="onDrop($event.target.files.item(0))">
       </div>
   </div>
 </div>
