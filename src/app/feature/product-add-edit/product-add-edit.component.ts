@@ -50,7 +50,9 @@ export class ProductAddEditComponent implements OnInit {
       this.productService
         .getProduct(this.productId)
         .subscribe(product => {
-          this.fileUrl = product.fileUrl.medium;
+          if (product.fileUrl) {
+            this.fileUrl = product.fileUrl.medium;
+          }
           this.productForm.setValue({
             name: product.name,
             price: product.price,
