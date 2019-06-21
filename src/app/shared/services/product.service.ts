@@ -78,7 +78,7 @@ export class ProductService {
   private generateDownloadUrls(url: string): FileUrl {
     const size = {
       medium: 256,
-      small: 32
+      small: 64
     };
     const delim = {
       queryParam: '?',
