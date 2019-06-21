@@ -23,19 +23,26 @@ export class ProductService {
   }
 
   getProducts(): Observable<Product[]> {
-    return this.productsCollection.snapshotChanges().pipe(
-      map(actions =>
-        actions.map(a => {
-          const data = a.payload.doc.data();
-          const id = a.payload.doc.id;
-          return { id, ...data } as Product;
-        })
-      )
-    );
+    return this.productsCollection
+      .snapshotChanges()
+      .pipe(
+        map(actions =>
+          actions.map(a => {
+            const data = a.payload.doc.data();
+            const id = a.payload.doc.id;
+            return { id, ...data } as Product;
+          })));
   }
 
-  getProduct(id: string): Observable<Product> {
-    return this.productsCollection.doc(id).valueChanges() as Observable<Product>;
+  getProduct(productId: string): Observable<Product> {
+    return this.productsCollection.doc(productId)
+      .snapshotChanges()
+      .pipe(
+        map(action => {
+            const data = action.payload.data();
+            const id = action.payload.id;
+            return { id, ...data } as Product;
+          })) as Observable<Product>;
   }
 
   addProduct(file: File, product: Product): Promise<DocumentReference> {
@@ -65,8 +72,7 @@ export class ProductService {
           const url = await ref.getDownloadURL().toPromise() as string;
           product.fileUrl = this.generateDownloadUrls(url);
           this.updateProduct(product);
-        }
-      );
+        });
   }
 
   private generateDownloadUrls(url: string): FileUrl {

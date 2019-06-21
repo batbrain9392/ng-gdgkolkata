@@ -1,1 +1,15 @@
-{{product | async | json}}
+<mat-card *ngIf="product$ | async as product">
+  <mat-card-header>
+    <mat-card-title>{{product.name}}</mat-card-title>
+    <mat-card-subtitle>{{product.price | currency:'INR'}}</mat-card-subtitle>
+  </mat-card-header>
+  <img mat-card-image [src]="product.fileUrl.medium" alt="photo"
+    *ngIf="product.fileUrl">
+  <mat-card-content>{{product.description}}</mat-card-content>
+  <mat-card-actions>
+    <button type="button" mat-button color="primary"
+      [routerLink]="['/feature/products/edit', product.id]">EDIT</button>
+    <button type="button" mat-button color="warn"
+      (click)="onDelete(product.id)">DELETE</button>
+  </mat-card-actions>
+</mat-card>
