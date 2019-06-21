@@ -31,7 +31,7 @@ import { SignupComponent } from './core/auth/signup/signup.component';
     AppRoutingModule,
     BrowserAnimationsModule,
     AngularFireModule.initializeApp(environment.firebase),
-    AngularFirestoreModule,
+    AngularFirestoreModule.enablePersistence(),
     AngularFireAuthModule,
     AngularFireStorageModule,
     AngularFireFunctionsModule,
