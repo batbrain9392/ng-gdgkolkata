@@ -1,7 +1,8 @@
 <button type="button" routerLink="add">Add</button>
 <ul>
   <li *ngFor="let product of products | async">
-    {{product | json}}
+    <img [src]="product.fileUrl.medium" alt="medium">
+    <div>{{product | json}}</div>
     <button type="button" [routerLink]="product.id">Details</button>
     <button type="button" [routerLink]="['edit', product.id]">Edit</button>
     <button type="button" (click)="onDelete(product.id)">Delete</button>

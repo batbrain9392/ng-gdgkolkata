@@ -19,6 +19,6 @@ export class ProductListComponent implements OnInit {
 
   onDelete(productId: string) {
     this.productService.deleteProduct(productId)
-      .then(console.log);
+      .then(() => console.log(`${productId} deleted`));
   }
 }
