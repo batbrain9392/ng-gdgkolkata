@@ -22,7 +22,7 @@
           *ngIf="isHandset$ | async">
           <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
         </button>
-        <span routerLink="/">CRUD</span>
+        <a routerLink="/" class="home-link">CRUD</a>
       </mat-toolbar>
       <main><router-outlet></router-outlet></main>
     </mat-sidenav-content>

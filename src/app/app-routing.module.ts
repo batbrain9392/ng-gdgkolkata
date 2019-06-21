@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-// import { LandingComponent } from './core/landing/landing.component';
+import { LandingComponent } from './core/landing/landing.component';
 import { PathNotFoundComponent } from './core/path-not-found/path-not-found.component';
 // import { SigninComponent } from './core/auth/signin/signin.component';
 // import { SignupComponent } from './core/auth/signup/signup.component';
@@ -18,8 +18,7 @@ const routes: Routes = [
   //   loadChildren: () =>
   //     import('./admin/admin.module').then(m => m.AdminModule)
   // },
-  // { path: '', component: LandingComponent },
-  { path: '', pathMatch: 'full', redirectTo: '/feature' },
+  { path: '', component: LandingComponent },
   { path: '**', component: PathNotFoundComponent }
 ];
 
