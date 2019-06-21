@@ -1,6 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import {
+  FormGroup,
+  FormBuilder,
+  Validators,
+  FormControl
+} from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ProductService } from 'src/app/shared/services/product.service';
 import { Product } from 'src/app/shared/interfaces/product';
 
@@ -12,10 +17,13 @@ import { Product } from 'src/app/shared/interfaces/product';
 export class ProductAddEditComponent implements OnInit {
   productForm: FormGroup;
   productId: string;
+  file: File;
+  fileUrl: string;
 
   constructor(
     fb: FormBuilder,
     activatedRoute: ActivatedRoute,
+    private router: Router,
     private productService: ProductService
   ) {
     this.productId = activatedRoute.snapshot.params.id;
@@ -25,39 +33,50 @@ export class ProductAddEditComponent implements OnInit {
       description: [null, Validators.required]
     });
   }
-
   get name() {
-    return this.productForm.controls.name;
+    return this.productForm.controls.name as FormControl;
   }
   get price() {
-    return this.productForm.controls.price;
+    return this.productForm.controls.price as FormControl;
   }
   get description() {
-    return this.productForm.controls.description;
+    return this.productForm.controls.description as FormControl;
   }
 
   ngOnInit() {
     if (this.productId) {
       this.productService
-      .getProduct(this.productId)
-      .subscribe(product => this.productForm.setValue(product));
+        .getProduct(this.productId)
+        .subscribe(product => {
+          this.fileUrl = product.fileUrl.medium;
+          this.productForm.setValue({
+            name: product.name,
+            price: product.price,
+            description: product.description
+          });
+        });
     }
+  }
+
+  setFile(file: File) {
+    this.file = file;
   }
 
   onSubmit() {
     if (this.productForm.valid) {
       if (this.productId) {
-        this.productService.updateProduct({
-          id: this.productId,
-          ...this.productForm.value
-        } as Product)
-        .then(console.log);
+        this.productService
+          .updateProduct({
+            id: this.productId,
+            ...this.productForm.value
+          } as Product)
+          .then(console.log);
       } else {
         this.productService
-          .addProduct(this.productForm.value as Product)
-          .then(doc => {
-            console.log(doc.id);
+          .addProduct(this.file, this.productForm.value as Product)
+          .then(() => {
             this.productForm.reset();
+            this.router.navigate(['feature', 'products']);
           });
       }
     }

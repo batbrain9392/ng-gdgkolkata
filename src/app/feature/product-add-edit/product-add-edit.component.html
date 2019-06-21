@@ -1,6 +1,8 @@
 <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
   <p>
-    <app-dropzone></app-dropzone>
+    <app-dropzone
+      (dropped)="setFile($event)"
+      [fileUrl]="fileUrl"></app-dropzone>
   </p>
   <p>
     <label for="name">Name</label><br>

@@ -1,10 +1,13 @@
-<div class="square">
+<div class="container">
+  <div class="square" [style.background-image]="backgroundImageUrl"></div>
   <div class="dropzone"
     appDropzone
     (hovered)="toggleHover($event)"
     (dropped)="onDrop($event)"
     [class.hovering]="isHovering">
-      <div>Drag and Drop a File</div>
-      <input type="file" (change)="onDrop($event.target.files)" accept="image/*">
+      <div class="dropzone-content">
+        <p>{{caption}}</p>
+        <input type="file" (change)="onDrop($event.target.files)" accept="image/*">
+      </div>
   </div>
 </div>
