@@ -85,7 +85,6 @@ export const deleteImageFolder = functions.firestore
       const uri = fileUrl.original.split(delim.queryParam).shift();
       if (uri) {
         const folder = uri.split(delim.folder).pop();
-        console.log(folder);
         if (folder) {
           const bucket = firebaseStorage.bucket();
           return bucket.deleteFiles({
