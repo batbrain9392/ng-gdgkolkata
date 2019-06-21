@@ -1,4 +1,4 @@
-<mat-card *ngIf="product$ | async as product">
+<mat-card *ngIf="product">
   <mat-card-header>
     <mat-card-title>{{product.name}}</mat-card-title>
     <mat-card-subtitle>{{product.price | currency:'INR'}}</mat-card-subtitle>

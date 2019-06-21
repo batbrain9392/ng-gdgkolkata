@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import {
   FormGroup,
   FormBuilder,
@@ -9,17 +9,19 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ProductService } from 'src/app/shared/services/product.service';
 import { Product } from 'src/app/shared/interfaces/product';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-product-add-edit',
   templateUrl: './product-add-edit.component.html',
   styleUrls: ['./product-add-edit.component.scss']
 })
-export class ProductAddEditComponent implements OnInit {
+export class ProductAddEditComponent implements OnInit, OnDestroy {
   productForm: FormGroup;
   productId: string;
   file: File;
   fileUrl: string;
+  subscription: Subscription;
 
   constructor(
     fb: FormBuilder,
@@ -47,17 +49,22 @@ export class ProductAddEditComponent implements OnInit {
 
   ngOnInit() {
     if (this.productId) {
-      this.productService
+      this.subscription = this.productService
         .getProduct(this.productId)
         .subscribe(product => {
-          if (product.fileUrl) {
-            this.fileUrl = product.fileUrl.medium;
+          if (product) {
+            this.productForm.setValue({
+              name: product.name,
+              price: product.price,
+              description: product.description
+            });
+            if (product.fileUrl) {
+              this.fileUrl = product.fileUrl.medium;
+            }
+          } else {
+            this.router.navigate(['feature', 'products']);
+            this.matSnackBar.open('Item does not exist');
           }
-          this.productForm.setValue({
-            name: product.name,
-            price: product.price,
-            description: product.description
-          });
         });
     }
   }
@@ -89,6 +96,12 @@ export class ProductAddEditComponent implements OnInit {
               .subscribe(() => this.router.navigate(['feature', 'products', doc.id]));
           });
       }
+    }
+  }
+
+  ngOnDestroy() {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
     }
   }
 }

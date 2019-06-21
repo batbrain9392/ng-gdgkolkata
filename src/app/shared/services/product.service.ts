@@ -30,7 +30,10 @@ export class ProductService {
           actions.map(a => {
             const data = a.payload.doc.data();
             const id = a.payload.doc.id;
-            return { id, ...data } as Product;
+            if (data) {
+              return { id, ...data } as Product;
+            }
+            return null;
           })));
   }
 
@@ -41,7 +44,10 @@ export class ProductService {
         map(action => {
             const data = action.payload.data();
             const id = action.payload.id;
-            return { id, ...data } as Product;
+            if (data) {
+              return { id, ...data } as Product;
+            }
+            return null;
           })) as Observable<Product>;
   }
 
