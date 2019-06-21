@@ -10,7 +10,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   templateUrl: './product-details.component.html',
   styleUrls: ['./product-details.component.scss']
 })
-export class ProductDetailsComponent implements OnInit, OnDestroy {
+export class ProductDetailsComponent implements OnInit {
   product: Product;
   subscription: Subscription;
 
@@ -35,14 +35,11 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
   }
 
   onDelete(productId: string) {
+    this.subscription.unsubscribe();
     this.productService.deleteProduct(productId)
       .then(() => {
         this.router.navigate(['feature', 'products']);
         this.matSnackBar.open('Item deleted');
       });
-  }
-
-  ngOnDestroy() {
-    this.subscription.unsubscribe();
   }
 }
