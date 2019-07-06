@@ -7,104 +7,110 @@ import {
 import { environment } from 'src/environments/environment';
 import { Product, FileUrl } from '../interfaces/product';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, finalize } from 'rxjs/operators';
 import { FileService } from './file.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProductService {
-  productsCollection: AngularFirestoreCollection<Product>;
+  private collectionName = 'products';
+  private productsCollection: AngularFirestoreCollection<Product>;
 
   constructor(afs: AngularFirestore, private fileService: FileService) {
     this.productsCollection = afs
       .doc(environment.env)
-      .collection<Product>('products');
+      .collection<Product>(this.collectionName);
   }
 
   getProducts(): Observable<Product[]> {
-    return this.productsCollection
-      .snapshotChanges()
-      .pipe(
-        map(actions =>
-          actions.map(a => {
-            const data = a.payload.doc.data();
-            const id = a.payload.doc.id;
-            if (data) {
-              return { id, ...data } as Product;
-            }
-            return null;
-          })));
+    return this.productsCollection.snapshotChanges().pipe(
+      map(actions =>
+        actions.map(a => {
+          const data = a.payload.doc.data();
+          const id = a.payload.doc.id;
+          if (data) {
+            return { id, ...data } as Product;
+          }
+          return null;
+        })
+      )
+    );
   }
 
   getProduct(productId: string): Observable<Product> {
-    return this.productsCollection.doc(productId)
+    return this.productsCollection
+      .doc(productId)
       .snapshotChanges()
       .pipe(
         map(action => {
-            const data = action.payload.data();
-            const id = action.payload.id;
-            if (data) {
-              return { id, ...data } as Product;
-            }
-            return null;
-          })) as Observable<Product>;
+          const data = action.payload.data();
+          const id = action.payload.id;
+          if (data) {
+            return { id, ...data } as Product;
+          }
+          return null;
+        })
+      ) as Observable<Product>;
   }
 
-  addProduct(file: File, product: Product): Promise<DocumentReference> {
-    return this.productsCollection
-      .add(product)
-      .then(doc => {
-        if (file) {
-          this.uploadFileAndUpdateUrl(doc, file, product);
-        }
-        return doc;
-      });
+  async addProduct(
+    file: File,
+    product: Product
+  ): Promise<{
+    doc: firebase.firestore.DocumentReference;
+    task$: Observable<number>;
+  }> {
+    const doc = await this.productsCollection.add(product);
+    let task$: Observable<number>;
+    if (file) {
+      task$ = this.uploadFileAndUpdateUrl(doc, file, product);
+    }
+    return { doc, task$ };
   }
 
   private uploadFileAndUpdateUrl(
     doc: DocumentReference,
     file: File,
     product: Product
-  ): void {
+  ): Observable<number> {
     product.id = doc.id;
     const { ref, task } = this.fileService.upload(file);
-    task
-      .snapshotChanges()
-      .subscribe(
-        console.log, // Every upload value
-        console.log, // Error
-        async () => { // On completion
-          const url = await ref.getDownloadURL().toPromise() as string;
-          product.fileUrl = this.generateDownloadUrls(url);
-          this.updateProduct(product);
-        });
+    return task.percentageChanges().pipe(
+      finalize(async () => {
+        const downloadURL = (await ref.getDownloadURL().toPromise()) as string;
+        const metaData = await ref.getMetadata().toPromise();
+        this.fileService
+          .generateThumbs(doc.id, metaData, downloadURL)
+          .subscribe();
+      })
+    );
   }
 
-  private generateDownloadUrls(url: string): FileUrl {
-    const size = {
-      medium: 256,
-      small: 64
-    };
-    const delim = {
-      queryParam: '?',
-      folder: '%2F'
-    };
-    const [uri, queryParams] = url.split(delim.queryParam);
-    const [remainingUri, fileName] = uri.split(delim.folder);
-    const fileUrl: FileUrl = {
-      original: fileName,
-      medium: `thumb@${size.medium}@${fileName}`,
-      small: `thumb@${size.small}@${fileName}`,
-    };
-    for (const key in fileUrl) {
-      if (fileUrl.hasOwnProperty(key)) {
-        fileUrl[key] = [remainingUri, fileUrl[key]].join(delim.folder);
-        fileUrl[key] = [fileUrl[key], queryParams].join(delim.queryParam);
-      }
-    }
-    return fileUrl;
-  }
+  // private generateDownloadUrls(url: string): FileUrl {
+  //   const size = {
+  //     medium: 256,
+  //     small: 64
+  //   };
+  //   const delim = {
+  //     queryParam: '?',
+  //     folder: '%2F'
+  //   };
+  //   const [uri, queryParams] = url.split(delim.queryParam);
+  //   const [remainingUri, fileName] = uri.split(delim.folder);
+  //   const fileUrl: FileUrl = {
+  //     original: fileName,
+  //     medium: `thumb@${size.medium}@${fileName}`,
+  //     small: `thumb@${size.small}@${fileName}`
+  //   };
+  //   for (const key in fileUrl) {
+  //     if (fileUrl.hasOwnProperty(key)) {
+  //       fileUrl[key] = [remainingUri, fileUrl[key]].join(delim.folder);
+  //       fileUrl[key] = [fileUrl[key], queryParams].join(delim.queryParam);
+  //     }
+  //   }
+  //   return fileUrl;
+  // }
 
   updateProduct({ id, ...productRest }: Product): Promise<void> {
     return this.productsCollection.doc(id).update(productRest);

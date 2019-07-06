@@ -27,6 +27,7 @@ export class ProductDetailsComponent implements OnInit {
       .subscribe(product => {
         if (product) {
           this.product = product;
+          console.log(product);
         } else {
           this.router.navigate(['feature', 'products']);
           this.matSnackBar.open('Item does not exist');

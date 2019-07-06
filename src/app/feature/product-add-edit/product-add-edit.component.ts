@@ -32,9 +32,12 @@ export class ProductAddEditComponent implements OnInit, OnDestroy {
   ) {
     this.productId = activatedRoute.snapshot.params.id;
     this.productForm = fb.group({
-      name: [null, Validators.required],
-      price: [null, Validators.required],
-      description: [null, Validators.required]
+      // name: [null, Validators.required],
+      // price: [null, Validators.required],
+      // description: [null, Validators.required]
+      name: ['Product', Validators.required],
+      price: [10, Validators.required],
+      description: ['Description', Validators.required]
     });
   }
   get name() {
@@ -88,13 +91,18 @@ export class ProductAddEditComponent implements OnInit, OnDestroy {
       } else {
         this.productService
           .addProduct(this.file, this.productForm.value as Product)
-          .then(doc => {
-            this.productForm.reset();
-            this.router.navigate(['feature', 'products']);
-            this.matSnackBar.open('Item created', 'VIEW')
-              .onAction()
-              .subscribe(() => this.router.navigate(['feature', 'products', doc.id]));
-          });
+          .then(({ doc, task$ }) =>
+            task$.subscribe(console.log, console.log, () => {
+              this.productForm.reset();
+              this.router.navigate(['feature', 'products']);
+              this.matSnackBar
+                .open('Item created', 'VIEW')
+                .onAction()
+                .subscribe(() =>
+                  this.router.navigate(['feature', 'products', doc.id])
+                );
+            })
+          );
       }
     }
   }
