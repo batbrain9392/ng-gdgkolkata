@@ -75,14 +75,21 @@ export class ProductService {
     product: Product
   ): Observable<number> {
     product.id = doc.id;
-    const { ref, task } = this.fileService.upload(file);
+    const { path, task } = this.fileService.upload(file);
     return task.percentageChanges().pipe(
       finalize(async () => {
-        const downloadURL = (await ref.getDownloadURL().toPromise()) as string;
-        const metaData = await ref.getMetadata().toPromise();
-        this.fileService
-          .generateThumbs(doc.id, metaData, downloadURL)
-          .subscribe();
+        const fileUrl = (await this.fileService
+          .generateThumbs(path)
+          .toPromise()) as FileUrl;
+        for (const key in fileUrl) {
+          if (fileUrl.hasOwnProperty(key)) {
+            fileUrl[key] = (await this.fileService
+              .ref(fileUrl[key])
+              .getDownloadURL()
+              .toPromise()) as string;
+          }
+        }
+        this.updateProduct({ fileUrl, ...product });
       })
     );
   }

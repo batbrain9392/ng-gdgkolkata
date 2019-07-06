@@ -1,7 +1,17 @@
 import { Injectable } from '@angular/core';
-import { AngularFireStorage } from '@angular/fire/storage';
+import {
+  AngularFireStorage,
+  AngularFireStorageReference,
+  AngularFireUploadTask
+} from '@angular/fire/storage';
 import { AngularFireFunctions } from '@angular/fire/functions';
-import { environment } from 'src/environments/environment';
+import { Observable } from 'rxjs';
+import { FileUrl } from '../interfaces/product';
+
+interface UploadTasks {
+  path: string;
+  task: AngularFireUploadTask;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -12,16 +22,19 @@ export class FileService {
     private functions: AngularFireFunctions
   ) {}
 
-  upload(file: File) {
+  upload(file: File): UploadTasks {
     const fileName = `${Date.now()}_${file.name}`;
     const path = `${fileName}/${fileName}`;
-    const ref = this.storage.ref(path);
     const task = this.storage.upload(path, file);
-    return { ref, task };
+    return { path, task };
   }
 
-  generateThumbs(productId: string, metaData: any, downloadURL: string) {
-    const callable = this.functions.httpsCallable('generateThumbsOnCall');
-    return callable({ productId, metaData, downloadURL });
+  generateThumbs(fullPath: string): Observable<FileUrl> {
+    const callable = this.functions.httpsCallable('generateThumbs');
+    return callable(fullPath);
+  }
+
+  ref(path: string): AngularFireStorageReference {
+    return this.storage.ref(path);
   }
 }

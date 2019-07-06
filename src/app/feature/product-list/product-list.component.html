@@ -5,7 +5,7 @@
 <mat-nav-list>
   <a mat-list-item *ngFor="let product of products | async"
     [routerLink]="product.id">
-    <img matListAvatar [src]="product.fileUrl.small" alt="photo"
+    <img matListAvatar [src]="product.fileUrl.size64" alt="photo"
       *ngIf="product.fileUrl">
     <h3 matLine>{{product.name}}</h3>
     <div matLine>{{product.price | currency:'INR'}}</div>

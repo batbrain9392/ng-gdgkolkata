@@ -10,6 +10,7 @@ import { ProductService } from 'src/app/shared/services/product.service';
 import { Product } from 'src/app/shared/interfaces/product';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subscription } from 'rxjs';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-product-add-edit',
@@ -32,12 +33,9 @@ export class ProductAddEditComponent implements OnInit, OnDestroy {
   ) {
     this.productId = activatedRoute.snapshot.params.id;
     this.productForm = fb.group({
-      // name: [null, Validators.required],
-      // price: [null, Validators.required],
-      // description: [null, Validators.required]
-      name: ['Product', Validators.required],
-      price: [10, Validators.required],
-      description: ['Description', Validators.required]
+      name: [null, Validators.required],
+      price: [null, Validators.required],
+      description: [null, Validators.required]
     });
   }
   get name() {
@@ -62,7 +60,7 @@ export class ProductAddEditComponent implements OnInit, OnDestroy {
               description: product.description
             });
             if (product.fileUrl) {
-              this.fileUrl = product.fileUrl.medium;
+              this.fileUrl = product.fileUrl.size256;
             }
           } else {
             this.router.navigate(['feature', 'products']);
@@ -92,16 +90,20 @@ export class ProductAddEditComponent implements OnInit, OnDestroy {
         this.productService
           .addProduct(this.file, this.productForm.value as Product)
           .then(({ doc, task$ }) =>
-            task$.subscribe(console.log, console.log, () => {
-              this.productForm.reset();
-              this.router.navigate(['feature', 'products']);
-              this.matSnackBar
-                .open('Item created', 'VIEW')
-                .onAction()
-                .subscribe(() =>
-                  this.router.navigate(['feature', 'products', doc.id])
-                );
-            })
+            task$
+              .pipe(
+                finalize(() => {
+                  this.productForm.reset();
+                  this.router.navigate(['feature', 'products']);
+                  this.matSnackBar
+                    .open('Item created', 'VIEW')
+                    .onAction()
+                    .subscribe(() =>
+                      this.router.navigate(['feature', 'products', doc.id])
+                    );
+                })
+              )
+              .subscribe()
           );
       }
     }

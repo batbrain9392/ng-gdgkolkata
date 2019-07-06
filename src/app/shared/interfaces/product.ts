@@ -8,6 +8,6 @@ export interface Product {
 
 export interface FileUrl {
   original: string;
-  medium: string;
-  small: string;
+  size256: string;
+  size64: string;
 }

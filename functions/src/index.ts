@@ -1,5 +1,5 @@
-import * as functions from 'firebase-functions';
-import { initializeApp, firestore, storage } from 'firebase-admin';
+import { https, firestore } from 'firebase-functions';
+import { initializeApp, storage } from 'firebase-admin';
 import { tmpdir } from 'os';
 import { join, dirname } from 'path';
 import * as sharp from 'sharp';
@@ -7,57 +7,60 @@ import * as fs from 'fs-extra';
 
 initializeApp();
 const fbStorage = storage();
-const fbFirestore = firestore();
 
 interface FileUrl {
   original: string;
-  medium: string;
-  small: string;
+  size256: string;
+  size64: string;
 }
 
-export const generateThumbsOnCall = functions.https.onCall(
-  async ({ productId, metaData, downloadURL }, context) => {
-    const bucket = fbStorage.bucket(metaData.bucket);
-    const bucketDir = dirname(metaData.fullPath);
+export const generateThumbs = https.onCall(
+  async (fullPath: string, context) => {
+    const bucket = fbStorage.bucket();
+    const bucketDir = dirname(fullPath);
     const workingDir = join(tmpdir(), 'thumbs');
     await fs.ensureDir(workingDir);
-    const fileName = metaData.fullPath.split('/').pop();
-    const tmpFilePath = join(workingDir, fileName);
-    const file = bucket.file(metaData.fullPath);
-    await file.download({
-      destination: tmpFilePath
-    });
-    const fileUrl: FileUrl = {
-      small: '',
-      medium: '',
-      original: downloadURL
-    };
-    const sizes = [64, 256];
-    const uploadPromises = sizes.map(async size => {
-      const thumbName = `thumb@${size}@${fileName}`;
-      const thumbPath = join(workingDir, thumbName);
-      await sharp(tmpFilePath)
-        .resize(size, size)
-        .toFile(thumbPath);
-      return bucket.upload(thumbPath, {
-        destination: join(bucketDir, thumbName)
+    const fileName = fullPath.split('/').pop();
+    if (fileName) {
+      const tmpFilePath = join(workingDir, fileName);
+      await bucket.file(fullPath).download({
+        destination: tmpFilePath
       });
-    });
-    await Promise.all(uploadPromises).then(() =>
-      console.log(sizes, 'generated')
-    );
-    // Set download urls for the newly generated sizes
-    // fileUrl.small = downloadUrl;
-    // fileUrl.medium = downloadUrl;
-    await fs.remove(workingDir);
-    return fbFirestore
-      .doc(`app/dev/products/${productId}`)
-      .update({ fileUrl: fileUrl })
-      .then(() => console.log(`${productId} updated`));
+      const fileUrl: FileUrl = {
+        size64: '',
+        size256: '',
+        original: fullPath
+      };
+      const sizes = [64, 256];
+      const uploadPromises = sizes.map(async (size, index) => {
+        const thumbName = `thumb@${size}@${fileName}`;
+        const thumbPath = join(workingDir, thumbName);
+        await sharp(tmpFilePath)
+          .resize(size, size)
+          .toFile(thumbPath);
+        const destination = join(bucketDir, thumbName);
+        switch (index) {
+          case 0:
+            fileUrl.size64 = destination;
+            break;
+          case 1:
+            fileUrl.size256 = destination;
+            break;
+          default:
+            break;
+        }
+        return bucket.upload(thumbPath, { destination: destination });
+      });
+      await Promise.all(uploadPromises);
+      await fs.remove(workingDir);
+      console.log(fileUrl);
+      return fileUrl;
+    }
+    return null;
   }
 );
 
-export const deleteImageFolder = functions.firestore
+export const deleteImageFolder = firestore
   .document('app/dev/products/{productId}')
   .onDelete((snap, context) => {
     const fileUrl: FileUrl = snap.get('fileUrl');
