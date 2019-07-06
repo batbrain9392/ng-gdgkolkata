@@ -87,31 +87,6 @@ export class ProductService {
     );
   }
 
-  // private generateDownloadUrls(url: string): FileUrl {
-  //   const size = {
-  //     medium: 256,
-  //     small: 64
-  //   };
-  //   const delim = {
-  //     queryParam: '?',
-  //     folder: '%2F'
-  //   };
-  //   const [uri, queryParams] = url.split(delim.queryParam);
-  //   const [remainingUri, fileName] = uri.split(delim.folder);
-  //   const fileUrl: FileUrl = {
-  //     original: fileName,
-  //     medium: `thumb@${size.medium}@${fileName}`,
-  //     small: `thumb@${size.small}@${fileName}`
-  //   };
-  //   for (const key in fileUrl) {
-  //     if (fileUrl.hasOwnProperty(key)) {
-  //       fileUrl[key] = [remainingUri, fileUrl[key]].join(delim.folder);
-  //       fileUrl[key] = [fileUrl[key], queryParams].join(delim.queryParam);
-  //     }
-  //   }
-  //   return fileUrl;
-  // }
-
   updateProduct({ id, ...productRest }: Product): Promise<void> {
     return this.productsCollection.doc(id).update(productRest);
   }
